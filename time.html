@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>时间工具集合</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background: #f0f2f5;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+        }
+
+        .time-display {
+            font-size: 2.5rem;
+            margin: 1rem 0;
+            font-family: monospace;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        button {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            background: #3498db;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+
+        input[type="datetime-local"] {
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin: 1rem 0;
+        }
+
+        #calendar {
+            font-size: 1.2rem;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 北京时间 -->
+        <div class="card">
+            <h2>🕒 北京时间</h2>
+            <div class="time-display" id="beijing-time"></div>
+            <div id="calendar"></div>
+        </div>
+
+        <!-- 倒计时 -->
+        <div class="card">
+            <h2>⏳ 倒计时</h2>
+            <input type="datetime-local" id="countdown-input">
+            <div class="time-display" id="countdown">00:00:00</div>
+            <div class="controls">
+                <button onclick="startCountdown()">开始</button>
+                <button onclick="resetCountdown()">重置</button>
+            </div>
+        </div>
+
+        <!-- 秒表 -->
+        <div class="card">
+            <h2>⏱️ 秒表</h2>
+            <div class="time-display" id="stopwatch">00:00:00</div>
+            <div class="controls">
+                <button onclick="startStopwatch()" id="startStop">开始</button>
+                <button onclick="resetStopwatch()">重置</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 北京时间
+        function updateBeijingTime() {
+            const options = { 
+                timeZone: 'Asia/Shanghai',
+                hour12: false,
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                weekday: 'long',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            
+            const date = new Date().toLocaleString('zh-CN', options);
+            document.getElementById('beijing-time').textContent = date.split(' ')[4];
+            document.getElementById('calendar').textContent = date.split(' ').slice(0,4).join(' ');
+        }
+        setInterval(updateBeijingTime, 1000);
+
+        // 倒计时功能
+        let countdownInterval;
+        function startCountdown() {
+            const targetTime = new Date(document.getElementById('countdown-input').value).getTime();
+            if (!targetTime) return;
+
+            clearInterval(countdownInterval);
+            countdownInterval = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = targetTime - now;
+
+                if (distance < 0) {
+                    clearInterval(countdownInterval);
+                    document.getElementById('countdown').textContent = "时间到！";
+                    return;
+                }
+
+                const hours = Math.floor(distance / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                document.getElementById('countdown').textContent = 
+                    `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function resetCountdown() {
+            clearInterval(countdownInterval);
+            document.getElementById('countdown').textContent = "00:00:00";
+            document.getElementById('countdown-input').value = "";
+        }
+
+        // 秒表功能
+        let stopwatchInterval;
+        let isRunning = false;
+        let startTime = 0;
+        let elapsed = 0;
+
+        function startStopwatch() {
+            if (!isRunning) {
+                isRunning = true;
+                document.getElementById('startStop').textContent = "暂停";
+                startTime = Date.now() - elapsed;
+                stopwatchInterval = setInterval(() => {
+                    elapsed = Date.now() - startTime;
+                    updateStopwatchDisplay();
+                }, 10);
+            } else {
+                isRunning = false;
+                document.getElementById('startStop').textContent = "继续";
+                clearInterval(stopwatchInterval);
+            }
+        }
+
+        function resetStopwatch() {
+            clearInterval(stopwatchInterval);
+            isRunning = false;
+            elapsed = 0;
+            document.getElementById('startStop').textContent = "开始";
+            document.getElementById('stopwatch').textContent = "00:00:00";
+        }
+
+        function updateStopwatchDisplay() {
+            const totalSeconds = Math.floor(elapsed / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            const milliseconds = Math.floor((elapsed % 1000) / 10);
+
+            document.getElementById('stopwatch').textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(2, '0')}`;
+        }
+
+        // 初始化
+        updateBeijingTime();
+    </script>
+</body>
+</html>

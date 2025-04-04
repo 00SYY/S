@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>随机选择器</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin: 20px 0;
+            color: #2c3e50;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .input-group {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+            font-size: 16px;
+        }
+        
+        button {
+            padding: 10px 15px;
+            border: none;
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .add-btn {
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .action-btn {
+            border-radius: 4px;
+            margin: 10px 0;
+            display: block;
+            width: 100%;
+        }
+        
+        .random-btn {
+            background-color: #2ecc71;
+        }
+        
+        .random-btn:hover {
+            background-color: #27ae60;
+        }
+        
+        .clear-btn {
+            background-color: #e74c3c;
+        }
+        
+        .clear-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        .options-list {
+            margin: 20px 0;
+            list-style-type: none;
+        }
+        
+        .option-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+        
+        .option-item:hover {
+            background-color: #e9ecef;
+        }
+        
+        .delete-btn {
+            background-color: #e74c3c;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        
+        .result-container {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #e8f4f8;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .result {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 10px 0;
+        }
+        
+        .edit-btn {
+            background-color: #f39c12;
+            margin-right: 5px;
+        }
+        
+        .edit-btn:hover {
+            background-color: #d35400;
+        }
+    </style>
+</head>
+<body>
+    <h1>随机选择器</h1>
+    
+    <div class="container">
+        <div class="input-group">
+            <input type="text" id="newOption" placeholder="输入选项内容">
+            <button class="add-btn" id="addBtn">添加</button>
+        </div>
+        
+        <ul class="options-list" id="optionsList">
+            <!-- 选项将在这里动态添加 -->
+        </ul>
+        
+        <button class="action-btn random-btn" id="randomBtn">随机选择</button>
+        <button class="action-btn clear-btn" id="clearBtn">清空所有选项</button>
+    </div>
+    
+    <div class="container result-container" id="resultContainer">
+        <h2>随机选择结果：</h2>
+        <div class="result" id="result"></div>
+        <button class="action-btn" id="newSelectionBtn">再选一次</button>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const newOptionInput = document.getElementById('newOption');
+            const addBtn = document.getElementById('addBtn');
+            const optionsList = document.getElementById('optionsList');
+            const randomBtn = document.getElementById('randomBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const resultContainer = document.getElementById('resultContainer');
+            const result = document.getElementById('result');
+            const newSelectionBtn = document.getElementById('newSelectionBtn');
+            
+            let options = [];
+            
+            // 从本地存储加载选项
+            loadOptions();
+            
+            // 添加选项
+            addBtn.addEventListener('click', addOption);
+            newOptionInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addOption();
+                }
+            });
+            
+            // 随机选择
+            randomBtn.addEventListener('click', selectRandomOption);
+            newSelectionBtn.addEventListener('click', selectRandomOption);
+            
+            // 清空选项
+            clearBtn.addEventListener('click', clearAllOptions);
+            
+            function addOption() {
+                const optionText = newOptionInput.value.trim();
+                if (optionText) {
+                    options.push(optionText);
+                    saveOptions();
+                    renderOptions();
+                    newOptionInput.value = '';
+                    newOptionInput.focus();
+                }
+            }
+            
+            function renderOptions() {
+                optionsList.innerHTML = '';
+                options.forEach((option, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'option-item';
+                    li.innerHTML = `
+                        <span>${option}</span>
+                        <div>
+                            <button class="edit-btn" data-index="${index}">编辑</button>
+                            <button class="delete-btn" data-index="${index}">删除</button>
+                        </div>
+                    `;
+                    optionsList.appendChild(li);
+                });
+                
+                // 添加删除按钮事件
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        options.splice(index, 1);
+                        saveOptions();
+                        renderOptions();
+                    });
+                });
+                
+                // 添加编辑按钮事件
+                document.querySelectorAll('.edit-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        const newText = prompt('编辑选项:', options[index]);
+                        if (newText !== null) {
+                            options[index] = newText.trim();
+                            saveOptions();
+                            renderOptions();
+                        }
+                    });
+                });
+            }
+            
+            function selectRandomOption() {
+                if (options.length === 0) {
+                    alert('请先添加一些选项！');
+                    return;
+                }
+                
+                const randomIndex = Math.floor(Math.random() * options.length);
+                result.textContent = options[randomIndex];
+                resultContainer.style.display = 'block';
+                
+                // 滚动到结果
+                resultContainer.scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            function clearAllOptions() {
+                if (options.length === 0 || confirm('确定要清空所有选项吗？')) {
+                    options = [];
+                    saveOptions();
+                    renderOptions();
+                    resultContainer.style.display = 'none';
+                }
+            }
+            
+            function saveOptions() {
+                localStorage.setItem('randomSelectorOptions', JSON.stringify(options));
+            }
+            
+            function loadOptions() {
+                const savedOptions = localStorage.getItem('randomSelectorOptions');
+                if (savedOptions) {
+                    options = JSON.parse(savedOptions);
+                    renderOptions();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实时天气查询</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 2rem;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        input {
+            flex: 1;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        button {
+            padding: 1rem 2rem;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+
+        .weather-card {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-top: 2rem;
+        }
+
+        .location {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .current-weather {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .temp {
+            font-size: 3rem;
+            font-weight: bold;
+        }
+
+        .weather-icon {
+            width: 100px;
+            height: 100px;
+        }
+
+        .details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .detail-item {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .forecast {
+            margin-top: 2rem;
+        }
+
+        .forecast-title {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .forecast-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+        }
+
+        .forecast-item {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .loading {
+            text-align: center;
+            margin: 2rem 0;
+            display: none;
+        }
+
+        .error {
+            color: #e74c3c;
+            text-align: center;
+            margin: 2rem 0;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .search-box {
+                flex-direction: column;
+            }
+            
+            .current-weather {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .details {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌤️ 实时天气查询</h1>
+        
+        <div class="search-box">
+            <input type="text" id="city-input" placeholder="输入城市名称，例如：北京">
+            <button onclick="getWeather()">查询天气</button>
+        </div>
+        
+        <div class="loading" id="loading">
+            <p>正在获取天气数据...</p>
+        </div>
+        
+        <div class="error" id="error">
+            <p id="error-message">无法获取天气数据，请检查城市名称是否正确</p>
+        </div>
+        
+        <div class="weather-card" id="weather-card">
+            <div class="location" id="location">北京市, 中国</div>
+            
+            <div class="current-weather">
+                <div>
+                    <div class="temp" id="temp">25°C</div>
+                    <div id="weather-desc">晴天</div>
+                </div>
+                <img id="weather-icon" class="weather-icon" src="" alt="天气图标">
+            </div>
+            
+            <div class="details">
+                <div class="detail-item">
+                    <div>体感温度</div>
+                    <div id="feels-like">26°C</div>
+                </div>
+                <div class="detail-item">
+                    <div>湿度</div>
+                    <div id="humidity">45%</div>
+                </div>
+                <div class="detail-item">
+                    <div>风速</div>
+                    <div id="wind">5 km/h</div>
+                </div>
+                <div class="detail-item">
+                    <div>气压</div>
+                    <div id="pressure">1012 hPa</div>
+                </div>
+            </div>
+            
+            <div class="forecast">
+                <div class="forecast-title">未来24小时预报</div>
+                <div class="forecast-items" id="forecast-items">
+                    <!-- 预报项目将通过JavaScript动态添加 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 替换为你的OpenWeatherMap API Key
+        const API_KEY = 'dff898f58a1ee4af931d7129461d6fec'; // 请替换为实际API Key
+        const BASE_URL = 'https://api.openweathermap.org/data/2.5/weather';
+        
+        // 获取天气数据
+        async function getWeather() {
+            const city = document.getElementById('city-input').value.trim();
+            if (!city) return;
+            
+            // 显示加载状态
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('weather-card').style.display = 'none';
+            
+            try {
+                // 获取当前天气
+                const currentResponse = await fetch(`${BASE_URL}/weather?q=${city}&units=metric&lang=zh_cn&appid=${API_KEY}`);
+                if (!currentResponse.ok) throw new Error('城市未找到');
+                
+                const currentData = await currentResponse.json();
+                
+                // 获取天气预报
+                const forecastResponse = await fetch(`${BASE_URL}/forecast?q=${city}&units=metric&lang=zh_cn&appid=${API_KEY}&cnt=5`);
+                const forecastData = await forecastResponse.json();
+                
+                // 更新UI
+                updateWeatherUI(currentData, forecastData);
+                
+                // 显示天气卡片
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('weather-card').style.display = 'block';
+            } catch (error) {
+                console.error('获取天气数据失败:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error-message').textContent = error.message || '获取天气数据失败';
+                document.getElementById('error').style.display = 'block';
+            }
+        }
+        
+        // 更新天气UI
+        function updateWeatherUI(currentData, forecastData) {
+            // 更新位置信息
+            document.getElementById('location').textContent = 
+                `${currentData.name}, ${currentData.sys.country}`;
+            
+            // 更新当前天气
+            document.getElementById('temp').textContent = 
+                `${Math.round(currentData.main.temp)}°C`;
+            document.getElementById('weather-desc').textContent = 
+                currentData.weather[0].description;
+            document.getElementById('weather-icon').src = 
+                `https://openweathermap.org/img/wn/${currentData.weather[0].icon}@2x.png`;
+            
+            // 更新天气详情
+            document.getElementById('feels-like').textContent = 
+                `${Math.round(currentData.main.feels_like)}°C`;
+            document.getElementById('humidity').textContent = 
+                `${currentData.main.humidity}%`;
+            document.getElementById('wind').textContent = 
+                `${Math.round(currentData.wind.speed * 3.6)} km/h`;
+            document.getElementById('pressure').textContent = 
+                `${currentData.main.pressure} hPa`;
+            
+            // 更新天气预报
+            const forecastContainer = document.getElementById('forecast-items');
+            forecastContainer.innerHTML = '';
+            
+            forecastData.list.slice(0, 5).forEach(item => {
+                const forecastItem = document.createElement('div');
+                forecastItem.className = 'forecast-item';
+                
+                const time = new Date(item.dt * 1000).toLocaleTimeString('zh-CN', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                forecastItem.innerHTML = `
+                    <div>${time}</div>
+                    <img src="https://openweathermap.org/img/wn/${item.weather[0].icon}.png" alt="${item.weather[0].description}">
+                    <div>${Math.round(item.main.temp)}°C</div>
+                    <div>${item.weather[0].description}</div>
+                `;
+                
+                forecastContainer.appendChild(forecastItem);
+            });
+        }
+        
+        // 回车键触发查询
+        document.getElementById('city-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                getWeather();
+            }
+        });
+        
+        // 默认加载北京天气
+        window.onload = function() {
+            document.getElementById('city-input').value = '北京';
+            getWeather();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TOTS的技术博客 - 分享开发经验与学习笔记">
+    <title>TOTS的小站 | 主页
+    </title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --text-color: #333;
+            --bg-color: #f8f9fa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            line-height: 1.6;
+            color: var(--text-color);
+            background: var(--bg-color);
+        }
+
+        /* 动态头部 */
+        header {
+            background: linear-gradient(135deg, var(--primary-color), #1a2533);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: -30px;
+            left: -10%;
+            width: 120%;
+            height: 60px;
+            background: var(--bg-color);
+            transform: rotate(-3deg);
+        }
+
+        /* 导航栏优化 */
+        nav {
+            background: rgba(52, 73, 94, 0.95);
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding: 0 1rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        nav a:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+        }
+
+        /* 主要内容区 */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            gap: 2rem;
+        }
+
+        /* 卡片式设计 */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+
+        /* 特色内容 */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .feature-item {
+            padding: 1.5rem;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        /* 社交链接 */
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .social-link {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: all 0.3s;
+        }
+
+        .social-link:hover {
+            transform: scale(1.1);
+            background: var(--primary-color);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                padding: 0 1rem;
+            }
+            
+            nav ul {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <audio autoplay loop hidden>
+        <source src="4.mp3" type="audio/mpeg">
+        您的浏览器不支持音频播放
+    </audio>
+
+    <header>
+        <h1>🎮 TOTS的小站</h1>
+        <p>探索技术世界 | 分享开发经验</p>
+        <div class="scrolling-text">
+            <marquee>✨ 最新动态：网站支持暗黑模式（测试中）</marquee>
+        </div>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="index.html"><i class="fas fa-home"></i>首页</a></li>
+            <li><a href="about.html"><i class="fas fa-user"></i>关于</a></li>
+            <li><a href="programming.html"><i class="fas fa-code"></i>编程资源</a></li>
+            <li><a href="sponsor.html"><i class="fas fa-heart"></i>支持作者</a></li>
+            <li><a href="menu.html"><i class="fas fa-book"></i>更多工具</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <main>
+            <div class="features">
+                <div class="card">
+                    <h2><i class="fas fa-rocket"></i> 最新项目</h2>
+                    <p>暗黑模式开发进度：</p>
+                    <div class="progress-bar" style="height:8px;background:#eee;border-radius:4px;margin:1rem 0">
+                        <div style="width:30%;height:100%;background:var(--secondary-color);border-radius:4px;"></div>
+                    </div>
+                    <p>正在搭建中</p>
+                </div>
+
+                <div class="card">
+                    <h2><i class="fas fa-book"></i> 注意事项</h2>
+                    <ul style="list-style:none;padding-left:1rem">
+                        <li>✅ 网站‘天气’模块不可用</li>
+                        <li>📚 网站‘编程资源’模块内容不可下载</li>
+                        <li>🔒 网站‘文件解压’模块内容仅可查看，不可下载</li>
+                    </ul>
+                </div>
+            </div>
+        <aside>
+            <div class="card">
+                <h3>🔔 网站动态</h3>
+                <div class="timeline" style="margin-top:1rem">
+                    <div class="event" style="position:relative;padding-left:1.5rem;margin-bottom:1.5rem">
+                        <div style="position:absolute;left:0;top:0;width:8px;height:8px;background:var(--secondary-color);border-radius:50%"></div>
+                        <div style="font-size:0.9em;color:#7f8c8d">2024.03.15</div>
+                        <p>暗黑功能测试中</p>
+                    </div>
+                    <div class="event" style="position:relative;padding-left:1.5rem">
+                        <div style="position:absolute;left:0;top:0;width:8px;height:8px;background:var(--secondary-color);border-radius:50%"></div>
+                        <div style="font-size:0.9em;color:#7f8c8d">2024.03.10</div>
+                        <p>网站视觉改版完成</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top:2rem">
+                <h3>👥 社交联系</h3>
+                <div class="social-links">
+                    <a href="https://github.com/00SYY" class="social-link" target="_blank">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="email.html" class="social-link">
+                        <i class="fas fa-envelope"></i>
+                    </a>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <footer style="background:var(--primary-color);color:white;padding:2rem;margin-top:3rem">
+        <div style="max-width:1200px;margin:0 auto;text-align:center">
+            <p>GitHub等国外平台专版|更新会有所延误</p>
+            <p>© 2025 TOTS的小站 保留所有权利</p>
+            <div style="margin-top:1rem">
+                <a href="https://domain.miit.gov.cn/" target="_blank" style="color:rgba(255,255,255,0.8);text-decoration:none">
+                    浙ICP备12345678号
+                </a>
+            </div>
+        </div>
+    </footer>
+    <script>
+        // 音乐播放控制
+        const audio = document.querySelector('audio');
+        audio.volume = 0.3; // 设置默认音量
+    </script>
+</body>
+</html>

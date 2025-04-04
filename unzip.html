@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>本地ZIP文件解压工具</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        .file-input {
+            margin: 20px 0;
+            padding: 10px;
+            border: 2px dashed #3498db;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        #fileList {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .file-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        button {
+            padding: 8px 16px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+
+        .progress-bar {
+            height: 20px;
+            background: #eee;
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress {
+            width: 0%;
+            height: 100%;
+            background: #2ecc71;
+            transition: width 0.3s;
+        }
+
+        .error {
+            color: #e74c3c;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #e74c3c;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>本地ZIP文件解压工具</h1>
+        
+        <div class="file-input">
+            <input type="file" id="zipFile" accept=".zip">
+            <p>拖放ZIP文件到此区域或点击选择</p>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+
+        <div id="fileList"></div>
+        <div id="errorMessage" class="error" style="display: none;"></div>
+
+        <button onclick="downloadAll()" id="downloadAll" style="display: none;">
+            下载全部文件
+        </button>
+    </div>
+
+    <script>
+        const zipFileInput = document.getElementById('zipFile');
+        const fileList = document.getElementById('fileList');
+        const progressBar = document.getElementById('progress');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // 处理文件选择
+        zipFileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            resetUI();
+            try {
+                const zip = await JSZip.loadAsync(file);
+                await processZip(zip);
+                document.getElementById('downloadAll').style.display = 'inline-block';
+            } catch (err) {
+                showError('文件解析失败: ' + err.message);
+            }
+        });
+
+        // 处理拖放文件
+        document.addEventListener('dragover', (e) => e.preventDefault());
+        document.addEventListener('drop', (e) => {
+            e.preventDefault();
+            zipFileInput.files = e.dataTransfer.files;
+            zipFileInput.dispatchEvent(new Event('change'));
+        });
+
+        // 处理ZIP文件内容
+        async function processZip(zip) {
+            const files = [];
+            let processed = 0;
+            
+            zip.forEach(async (relativePath, file) => {
+                if (file.dir) return;
+
+                // 创建文件条目
+                const fileItem = createFileItem(relativePath);
+                files.push({
+                    name: relativePath,
+                    content: await file.async('blob'),
+                    element: fileItem
+                });
+
+                // 更新进度
+                processed++;
+                updateProgress(processed / zip.length);
+            });
+        }
+
+        // 创建文件条目
+        function createFileItem(filename) {
+            const item = document.createElement('div');
+            item.className = 'file-item';
+            item.innerHTML = `
+                <span>${filename}</span>
+                <button onclick="downloadSingle('${filename}')">下载</button>
+            `;
+            fileList.appendChild(item);
+            return item;
+        }
+
+        // 更新进度条
+        function updateProgress(percentage) {
+            progressBar.style.width = `${Math.round(percentage * 100)}%`;
+        }
+
+        // 下载单个文件
+        function downloadSingle(filename) {
+            const file = window.files.find(f => f.name === filename);
+            if (file) {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(file.content);
+                link.download = filename;
+                link.click();
+            }
+        }
+
+        // 下载全部文件
+        function downloadAll() {
+            window.files.forEach(file => {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(file.content);
+                link.download = file.name;
+                link.click();
+            });
+        }
+
+        // 重置界面
+        function resetUI() {
+            fileList.innerHTML = '';
+            progressBar.style.width = '0%';
+            errorMessage.style.display = 'none';
+            window.files = [];
+        }
+
+        // 显示错误信息
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
