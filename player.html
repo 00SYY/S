@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多媒体播放器</title>
+    <style>
+        :root {
+            --primary: #2196F3;
+            --secondary: #FF5722;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui;
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 20px;
+            background: #f0f4f8;
+        }
+
+        .player-container {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .media-wrapper {
+            position: relative;
+            margin: 1rem 0;
+        }
+
+        audio, video {
+            width: 100%;
+            border-radius: 8px;
+            background: #000;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 0.6rem 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .danger-btn {
+            background: var(--secondary);
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 4px;
+            background: #ddd;
+            border-radius: 2px;
+        }
+
+        select {
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .file-info {
+            margin-top: 1rem;
+            padding: 0.5rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .loader {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 音频播放器 -->
+    <div class="player-container">
+        <h2>音乐播放器 (支持MP3/WAV/OGG/AAC)</h2>
+        <div class="media-wrapper">
+            <audio id="audio-player"></audio>
+            <div class="loader" id="audio-loader"></div>
+        </div>
+        
+        <div class="controls">
+            <button onclick="togglePlay('audio')">
+                <span class="icon">▶️</span>
+                <span class="text">播放/暂停</span>
+            </button>
+            <input type="range" id="audio-progress" value="0" step="0.1">
+            <span class="time-display">
+                <span id="audio-current-time">00:00</span> / 
+                <span id="audio-duration">00:00</span>
+            </span>
+            <input type="range" id="audio-volume" min="0" max="1" step="0.1" value="1"
+                   oninput="setVolume('audio', this.value)">
+            <button class="danger-btn" onclick="clearMedia('audio')">清除文件</button>
+        </div>
+        
+        <div class="file-info" id="audio-file-info"></div>
+    </div>
+
+    <!-- 视频播放器 -->
+    <div class="player-container">
+        <h2>视频播放器 (支持MP4/WebM/MOV/AVI)</h2>
+        <div class="media-wrapper">
+            <video id="video-player"></video>
+            <div class="loader" id="video-loader"></div>
+        </div>
+        
+        <div class="controls">
+            <button onclick="togglePlay('video')">
+                <span class="icon">▶️</span>
+                <span class="text">播放/暂停</span>
+            </button>
+            <input type="range" id="video-progress" value="0" step="0.1">
+            <span class="time-display">
+                <span id="video-current-time">00:00</span> / 
+                <span id="video-duration">00:00</span>
+            </span>
+            <select id="playback-rate" onchange="setPlaybackRate(this.value)">
+                <option value="0.5">0.5x</option>
+                <option value="1" selected>1x</option>
+                <option value="1.5">1.5x</option>
+                <option value="2">2x</option>
+            </select>
+            <button onclick="toggleFullscreen()">全屏</button>
+            <button class="danger-btn" onclick="clearMedia('video')">清除文件</button>
+        </div>
+        
+        <div class="file-info" id="video-file-info"></div>
+    </div>
+
+    <script>
+        const mediaPlayers = {
+            audio: {
+                element: document.getElementById('audio-player'),
+                progress: document.getElementById('audio-progress'),
+                currentTime: document.getElementById('audio-current-time'),
+                duration: document.getElementById('audio-duration'),
+                loader: document.getElementById('audio-loader'),
+                fileInfo: document.getElementById('audio-file-info')
+            },
+            video: {
+                element: document.getElementById('video-player'),
+                progress: document.getElementById('video-progress'),
+                currentTime: document.getElementById('video-current-time'),
+                duration: document.getElementById('video-duration'),
+                loader: document.getElementById('video-loader'),
+                fileInfo: document.getElementById('video-file-info')
+            }
+        };
+
+        // 初始化事件监听
+        Object.entries(mediaPlayers).forEach(([type, player]) => {
+            player.element.addEventListener('timeupdate', () => updateProgress(type));
+            player.element.addEventListener('loadedmetadata', () => {
+                player.duration.textContent = formatTime(player.element.duration);
+                player.progress.max = player.element.duration;
+            });
+            player.element.addEventListener('waiting', () => showLoader(type));
+            player.element.addEventListener('canplay', () => hideLoader(type));
+            player.element.addEventListener('error', (e) => handleError(type, e));
+            
+            // 进度条拖动
+            player.progress.addEventListener('input', (e) => {
+                player.element.currentTime = e.target.value;
+            });
+        });
+
+        // 通用功能
+        function togglePlay(type) {
+            const player = mediaPlayers[type].element;
+            player.paused ? player.play() : player.pause();
+        }
+
+        function setVolume(type, volume) {
+            mediaPlayers[type].element.volume = volume;
+        }
+
+        function updateProgress(type) {
+            const { element, progress, currentTime } = mediaPlayers[type];
+            const time = element.currentTime;
+            progress.value = time;
+            currentTime.textContent = formatTime(time);
+        }
+
+        function formatTime(seconds) {
+            const date = new Date(seconds * 1000);
+            return date.toISOString().substr(11, 8).replace(/^00:/, '');
+        }
+
+        // 视频增强功能
+        function setPlaybackRate(rate) {
+            mediaPlayers.video.element.playbackRate = rate;
+        }
+
+        function toggleFullscreen() {
+            const video = mediaPlayers.video.element;
+            if (video.requestFullscreen) {
+                video.requestFullscreen();
+            } else if (video.webkitRequestFullscreen) {
+                video.webkitRequestFullscreen();
+            } else if (video.mozRequestFullScreen) {
+                video.mozRequestFullScreen();
+            }
+        }
+
+        // 文件管理
+        function loadMedia(type, files) {
+            if (!files.length) return;
+            
+            const player = mediaPlayers[type];
+            const file = files[0];
+            
+            showLoader(type);
+            player.element.src = URL.createObjectURL(file);
+            player.element.load();
+            
+            player.fileInfo.innerHTML = `
+                <strong>已加载文件：</strong>
+                ${file.name} (${(file.size/1024/1024).toFixed(2)}MB)
+                <br><small>类型：${file.type}</small>
+            `;
+        }
+
+        function clearMedia(type) {
+            const player = mediaPlayers[type];
+            player.element.pause();
+            player.element.src = '';
+            player.progress.value = 0;
+            player.currentTime.textContent = '00:00';
+            player.duration.textContent = '00:00';
+            player.fileInfo.innerHTML = '<em>没有加载文件</em>';
+        }
+
+        function showLoader(type) {
+            mediaPlayers[type].loader.style.display = 'block';
+        }
+
+        function hideLoader(type) {
+            mediaPlayers[type].loader.style.display = 'none';
+        }
+
+        function handleError(type, error) {
+            console.error(`${type}播放错误:`, error);
+            alert(`播放错误：${error.target.error.message}`);
+            hideLoader(type);
+        }
+
+        // 文件选择处理
+        document.body.addEventListener('change', (e) => {
+            if (e.target.matches('#audio-file')) {
+                loadMedia('audio', e.target.files);
+            }
+            if (e.target.matches('#video-file')) {
+                loadMedia('video', e.target.files);
+            }
+        });
+    </script>
+
+    <!-- 隐藏的文件输入 -->
+    <div style="display: none;">
+        <input type="file" id="audio-file" accept="audio/*">
+        <input type="file" id="video-file" accept="video/*">
+    </div>
+
+    <!-- 自定义上传按钮 -->
+    <div style="text-align: center; margin: 2rem 0;">
+        <button onclick="document.getElementById('audio-file').click()">选择音频文件</button>
+        <button onclick="document.getElementById('video-file').click()">选择视频文件</button>
+    </div>
+</body>
+</html>
