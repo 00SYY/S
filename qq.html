@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的QQ群 - 在线交流</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #12B7F5;
+            --secondary: #FFC107;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        .card {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .icon-container {
+            width: 80px;
+            height: 80px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+        }
+
+        .fa-qq {
+            color: white;
+            font-size: 2.5rem;
+        }
+
+        .qq-number {
+            font-size: 2.2rem;
+            color: #333;
+            font-weight: 500;
+            margin: 1rem 0;
+            cursor: pointer;
+            position: relative;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .qq-number:hover {
+            background: rgba(18, 183, 245, 0.1);
+        }
+
+        .copied-message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--secondary);
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 25px;
+            display: none;
+            animation: slideDown 0.3s;
+        }
+
+        .notice {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 2rem;
+            max-width: 300px;
+        }
+
+        @keyframes slideDown {
+            from {
+                top: -50px;
+                opacity: 0;
+            }
+            to {
+                top: 20px;
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 2rem;
+                margin: 1rem;
+            }
+            .qq-number {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="icon-container">
+            <i class="fab fa-qq"></i>
+        </div>
+        <h2>QQ:</h2>
+        <h2>我的在线联系群组</h2>
+        <div class="qq-number" id="qqNumber" title="点击复制">
+            1111111111
+        </div>
+        <p class="notice">
+            <i class="fas fa-info-circle"></i>
+            请说明来意并文明交流
+        </p>
+    </div>
+
+    <div class="copied-message" id="copiedMessage">
+        <i class="fas fa-check"></i> 已复制到剪贴板
+    </div>
+
+    <script>
+        const qqNumber = document.getElementById('qqNumber');
+        const copiedMessage = document.getElementById('copiedMessage');
+
+        // 复制功能
+        qqNumber.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText('1111111111');
+                copiedMessage.style.display = 'block';
+                setTimeout(() => {
+                    copiedMessage.style.display = 'none';
+                }, 2000);
+            } catch (err) {
+                alert('复制失败，请手动选择复制');
+            }
+        });
+
+        // 安全提示
+        console.log('%c请注意：公开QQ号可能带来安全风险', 
+            'color: red; font-size: 16px; font-weight: bold;');
+    </script>
+</body>
+</html>
