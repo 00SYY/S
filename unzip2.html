@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZIP文件处理器</title>
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+        .file-section {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: white;
+            border-radius: 4px;
+        }
+        input[type="file"], input[type="password"] {
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            width: 100%;
+        }
+        button {
+            padding: 0.5rem 1rem;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .progress {
+            height: 20px;
+            background: #ddd;
+            margin: 1rem 0;
+        }
+        .progress-bar {
+            height: 100%;
+            background: #28a745;
+            width: 0%;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>ZIP文件处理器(加密和解压不适用于正常压缩工具)</h2>
+        <a href="index.html">回到首页</a>
+        <!-- 解压模块 -->
+        <div class="file-section">
+            <h3>解压文件</h3>
+            <input type="file" id="unzipFile" accept=".zip">
+            <input type="password" id="unzipPassword" placeholder="解压密码（可选）">
+            <button onclick="handleUnzip()">开始解压</button>
+            <div class="progress">
+                <div class="progress-bar" id="unzipProgress"></div>
+            </div>
+        </div>
+
+        <!-- 压缩模块 -->
+        <div class="file-section">
+            <h3>压缩文件</h3>
+            <input type="file" id="zipFiles" multiple>
+            <input type="password" id="zipPassword" placeholder="设置密码（可选）">
+            <button onclick="handleZip()">开始压缩</button>
+            <div class="progress">
+                <div class="progress-bar" id="zipProgress"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 依赖库 -->
+    <script src="https://cdn.jsdelivr.net/npm/@zip.js/zip.js@2.6.41/dist/zip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/node-forge@1.3.1/dist/forge.min.js"></script>
+
+    <script>
+        // 初始化zip.js配置
+        zip.configure({
+            useWebWorkers: false,
+            maxWorkers: 1
+        });
+
+        // 解压处理函数
+        async function handleUnzip() {
+            const file = document.getElementById('unzipFile').files[0];
+            const password = document.getElementById('unzipPassword').value;
+            
+            if (!file) {
+                alert('请选择要解压的文件');
+                return;
+            }
+
+            try {
+                const reader = new zip.ZipReader(new zip.BlobReader(file));
+                const entries = await reader.getEntries({password});
+                
+                for (const entry of entries) {
+                    const progress = (entry.index / entries.length) * 100;
+                    document.getElementById('unzipProgress').style.width = `${progress}%`;
+                    
+                    if (entry.directory) continue;
+                    const content = await entry.getData(new zip.BlobWriter());
+                    saveAs(content, entry.filename);
+                }
+                
+                await reader.close();
+                alert('解压完成');
+            } catch (error) {
+                alert(`解压失败: ${error.message}`);
+            }
+        }
+
+        // 压缩处理函数
+        async function handleZip() {
+            const files = document.getElementById('zipFiles').files;
+            const password = document.getElementById('zipPassword').value;
+            
+            if (files.length === 0) {
+                alert('请选择要压缩的文件');
+                return;
+            }
+
+            try {
+                const writer = new zip.ZipWriter(new zip.BlobWriter('application/zip'));
+                let count = 0;
+                
+                for (const file of files) {
+                    const reader = new zip.BlobReader(file);
+                    await writer.add(file.name, reader, {
+                        password,
+                        encryptionStrength: 256,
+                        onprogress: (progress) => {
+                            const total = (++count / files.length) * 100;
+                            document.getElementById('zipProgress').style.width = `${total}%`;
+                        }
+                    });
+                }
+                
+                const blob = await writer.close();
+                saveAs(blob, 'archive.zip');
+                alert('压缩完成');
+            } catch (error) {
+                alert(`压缩失败: ${error.message}`);
+            }
+        }
+
+        // 文件保存函数
+        function saveAs(blob, filename) {
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            link.click();
+        }
+    </script>
+</body>
+</html>
