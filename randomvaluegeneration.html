@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能密码生成器</title>
+    <style>
+        :root {
+            --primary: #2196F3;
+            --secondary: #4CAF50;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui;
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 20px;
+            background: #f5f7fa;
+        }
+
+        .generator {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .input-group {
+            margin: 1rem 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        #password-output {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            word-break: break-all;
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 0.5rem 1rem;
+            background: var(--secondary);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="generator">
+        <h2>智能密码生成器</h2>
+        
+        <div class="input-group">
+            <label for="length">密码长度 (4-100)</label>
+            <input type="number" id="length" min="4" max="100" value="12">
+        </div>
+
+        <div class="options">
+            <div class="checkbox-group">
+                <input type="checkbox" id="uppercase" checked>
+                <label for="uppercase">大写字母 (A-Z)</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="lowercase" checked>
+                <label for="lowercase">小写字母 (a-z)</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="numbers" checked>
+                <label for="numbers">数字 (0-9)</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="symbols">
+                <label for="symbols">特殊符号 (!@#$%^&*)</label>
+            </div>
+        </div>
+
+        <button onclick="generatePassword()">生成安全密码</button>
+        
+        <div id="password-output">
+            <button class="copy-btn" onclick="copyPassword()">复制</button>
+            <span id="password"></span>
+        </div>
+    </div>
+
+    <script>
+        const characterSets = {
+            uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+            lowercase: 'abcdefghijklmnopqrstuvwxyz',
+            numbers: '0123456789',
+            symbols: '!@#$%^&*'
+        };
+
+        function generatePassword() {
+            const length = parseInt(document.getElementById('length').value) || 12;
+            let charset = '';
+            
+            // 构建字符集
+            Object.keys(characterSets).forEach(type => {
+                if (document.getElementById(type).checked) {
+                    charset += characterSets[type];
+                }
+            });
+
+            if (!charset) {
+                alert('请至少选择一种字符类型！');
+                return;
+            }
+
+            // 生成密码
+            let password = '';
+            const crypto = window.crypto || window.msCrypto;
+            const values = new Uint32Array(length);
+            
+            try {
+                crypto.getRandomValues(values);
+                for (let i = 0; i < length; i++) {
+                    password += charset[values[i] % charset.length];
+                }
+            } catch (e) {
+                // 兼容不支持crypto的浏览器
+                for (let i = 0; i < length; i++) {
+                    password += charset[Math.floor(Math.random() * charset.length)];
+                }
+            }
+
+            // 确保至少包含每个选中的字符类型
+            Object.keys(characterSets).forEach(type => {
+                if (document.getElementById(type).checked) {
+                    if (!password.match(new RegExp(`[${characterSets[type]}]`))) {
+                        const index = Math.floor(Math.random() * password.length);
+                        password = password.substring(0, index) + 
+                                  characterSets[type][Math.floor(Math.random() * characterSets[type].length)] +
+                                  password.substring(index + 1);
+                    }
+                }
+            });
+
+            document.getElementById('password').textContent = password;
+        }
+
+        function copyPassword() {
+            const password = document.getElementById('password').textContent;
+            if (password) {
+                navigator.clipboard.writeText(password).then(() => {
+                    alert('密码已复制到剪贴板！');
+                }).catch(err => {
+                    console.error('复制失败:', err);
+                });
+            }
+        }
+
+        // 初始化生成一个密码
+        generatePassword();
+    </script>
+</body>
+</html>
