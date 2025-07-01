@@ -3,260 +3,310 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="TOTS的技术博客 - 分享开发经验与学习笔记">
-    <title>TOTS的小站 | 主页
-    </title>
+    <title>网站搬迁通知 - TOTS</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --accent-color: #e74c3c;
-            --text-color: #333;
-            --bg-color: #f8f9fa;
-        }
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-
+        
         body {
-            line-height: 1.6;
-            color: var(--text-color);
-            background: var(--bg-color);
-        }
-
-        /* 动态头部 */
-        header {
-            background: linear-gradient(135deg, var(--primary-color), #1a2533);
-            color: white;
-            padding: 4rem 2rem;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        header::after {
-            content: '';
-            position: absolute;
-            bottom: -30px;
-            left: -10%;
-            width: 120%;
-            height: 60px;
-            background: var(--bg-color);
-            transform: rotate(-3deg);
-        }
-
-        /* 导航栏优化 */
-        nav {
-            background: rgba(52, 73, 94, 0.95);
-            padding: 1rem;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            backdrop-filter: blur(5px);
-        }
-
-        nav ul {
-            list-style: none;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
-            gap: 2rem;
-            padding: 0 1rem;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+            line-height: 1.6;
         }
-
-        nav a {
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            position: relative;
+            transition: all 0.4s ease;
+        }
+        
+        .container:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+        }
+        
+        .header {
+            background: linear-gradient(120deg, #4b6cb7 0%, #182848 100%);
+            padding: 40px 30px;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+        
+        .logo-container {
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            animation: float 4s ease-in-out infinite;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+        
+        .title {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        .subtitle {
+            font-size: 1.4rem;
+            opacity: 0.9;
+            font-weight: 300;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .content {
+            padding: 50px 40px;
+            text-align: center;
+        }
+        
+        .message {
+            font-size: 1.25rem;
+            margin-bottom: 30px;
+            color: #444;
+            line-height: 1.8;
+        }
+        
+        .highlight {
+            color: #2c5cc5;
+            font-weight: 600;
+            font-size: 1.3rem;
+        }
+        
+        .new-url {
+            display: inline-block;
+            background: #f0f5ff;
+            border: 2px dashed #4b6cb7;
+            padding: 15px 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+            font-size: 1.4rem;
+            color: #2c5cc5;
+            font-weight: 600;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(to right, #4b6cb7, #2c5cc5);
             color: white;
             text-decoration: none;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            padding: 16px 40px;
+            border-radius: 50px;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(43, 92, 197, 0.25);
+            border: none;
         }
-
-        nav a:hover {
-            background: rgba(255,255,255,0.1);
-            transform: translateY(-2px);
-        }
-
-        /* 主要内容区 */
-        .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-            display: grid;
-            grid-template-columns: 3fr 1fr;
-            gap: 2rem;
-        }
-
-        /* 卡片式设计 */
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            transition: transform 0.3s;
-        }
-
-        .card:hover {
+        
+        .btn:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 15px 30px rgba(43, 92, 197, 0.4);
+            background: linear-gradient(to right, #3a5ca5, #1d4ab5);
         }
-
-        /* 特色内容 */
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
+        
+        .btn i {
+            margin-right: 10px;
+            font-size: 1.3rem;
         }
-
-        .feature-item {
-            padding: 1.5rem;
-            background: white;
-            border-radius: 8px;
-            border-left: 4px solid var(--secondary-color);
+        
+        .info-box {
+            background: #f8f9ff;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 40px 0 20px;
+            text-align: left;
+            border-left: 4px solid #4b6cb7;
         }
-
-        /* 社交链接 */
-        .social-links {
+        
+        .info-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #2c5cc5;
+            font-weight: 600;
+        }
+        
+        .info-content {
+            font-size: 1rem;
+            color: #555;
+        }
+        
+        .footer {
+            padding: 25px;
+            text-align: center;
+            background: #f8f9ff;
+            border-top: 1px solid #eaeef7;
             display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-top: 1.5rem;
-        }
-
-        .social-link {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--secondary-color);
-            display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            color: white;
-            transition: all 0.3s;
+            flex-wrap: wrap;
         }
-
-        .social-link:hover {
-            transform: scale(1.1);
-            background: var(--primary-color);
+        
+        .signature {
+            font-size: 1.1rem;
+            color: #666;
+            font-weight: 500;
         }
-
-        /* 响应式设计 */
+        
+        .date {
+            font-size: 1.1rem;
+            color: #666;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+        
         @media (max-width: 768px) {
-            .container {
-                grid-template-columns: 1fr;
-                padding: 0 1rem;
+            .header {
+                padding: 30px 20px;
             }
             
-            nav ul {
+            .title {
+                font-size: 2.2rem;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .content {
+                padding: 35px 25px;
+            }
+            
+            .new-url {
+                font-size: 1.1rem;
+                padding: 12px 20px;
+            }
+            
+            .footer {
                 flex-direction: column;
-                text-align: center;
-                gap: 1rem;
+                gap: 10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .title {
+                font-size: 1.8rem;
+            }
+            
+            .logo-container {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .logo {
+                width: 65px;
+                height: 65px;
+            }
+            
+            .new-url {
+                font-size: 1rem;
+            }
+            
+            .btn {
+                padding: 14px 30px;
+                font-size: 1.1rem;
             }
         }
     </style>
 </head>
 <body>
-    <audio autoplay loop hidden>
-        <source src="music/4.mp3" type="audio/mpeg">
-        您的浏览器不支持音频播放
-    </audio>
-
-    <header>
-        <h1>🎮 TOTS的小站</h1>
-        <p>探索技术世界 | 分享开发经验</p>
-        <div class="scrolling-text">
-            <marquee>✨ 最新动态：网站支持暗黑模式（测试中）</marquee>
-        </div>
-    </header>
-
-    <nav>
-        <ul>
-            <li><a href="about.html"><i class="fas fa-user"></i>关于</a></li>
-            <li><a href="resourcesharing.html"><i class="fas fa-code"></i>资源分享</a></li>
-            <li><a href="sponsor.html"><i class="fas fa-heart"></i>支持作者</a></li>
-            <li><a href="menu.html"><i class="fas fa-book"></i>更多工具</a></li>
-        </ul>
-    </nav>
-
     <div class="container">
-        <main>
-            <div class="features">
-                <div class="card">
-                    <h2><i class="fas fa-rocket"></i> 最新项目</h2>
-                    <p>暗黑模式开发进度：</p>
-                    <a href="index.html"><i class="fas fa-home"></i>首页</a></li>
-                    <div class="progress-bar" style="height:8px;background:#eee;border-radius:4px;margin:1rem 0">
-                        <div style="width:30%;height:100%;background:var(--secondary-color);border-radius:4px;"></div>
-                    </div>
-                    <p>正在搭建中</p>
-                </div>
-
-                <div class="card">
-                    <h2><i class="fas fa-book"></i> 注意事项</h2>
-                    <ul style="list-style:none;padding-left:1rem">
-                        <li>✅ 网站‘天气’模块不可用</li>
-                        <li>📚 网站‘编程资源’模块内容不可下载</li>
-                        <li>🔒 网站‘文件解压’模块内容仅可查看，不可下载</li>
-                    </ul>
-                </div>
+        <div class="header">
+            <div class="logo-container">
+                <!-- 这里使用了Font Awesome图标作为占位，实际使用时替换为logocompressed.png -->
+                <i class="fas fa-cloud-upload-alt logo" style="font-size: 60px; color: #4b6cb7;"></i>
+                <!-- 实际使用时替换为：<img src="logocompressed.png" alt="TOTS Logo" class="logo"> -->
             </div>
-        <aside>
-            <div class="card">
-                <h3>🔔 网站动态</h3>
-                <div class="timeline" style="margin-top:1rem">
-                    <div class="event" style="position:relative;padding-left:1.5rem;margin-bottom:1.5rem">
-                        <div style="position:absolute;left:0;top:0;width:8px;height:8px;background:var(--secondary-color);border-radius:50%"></div>
-                        <div style="font-size:0.9em;color:#7f8c8d">2024.03.15</div>
-                        <p>暗黑功能测试中</p>
-                    </div>
-                    <div class="event" style="position:relative;padding-left:1.5rem">
-                        <div style="position:absolute;left:0;top:0;width:8px;height:8px;background:var(--secondary-color);border-radius:50%"></div>
-                        <div style="font-size:0.9em;color:#7f8c8d">2024.03.10</div>
-                        <p>网站视觉改版完成</p>
-                    </div>
-                </div>
+            <h1 class="title">重要通知</h1>
+            <p class="subtitle">我们的网站已搬迁至新地址</p>
+        </div>
+        
+        <div class="content">
+            <p class="message">
+                亲爱的用户，感谢您一直以来的支持！为提供更优质的服务，<span class="highlight">TOTS</span> 网站已迁移至全新平台。
+            </p>
+            
+            <div class="new-url">
+                totscloud.top
             </div>
-
-            <div class="card" style="margin-top:2rem">
-                <h3>👥 社交联系</h3>
-                <div class="social-links">
-                    <a href="https://github.com/00SYY" class="social-link" target="_blank">
-                        <i class="fab fa-github"></i>
-                    </a>
-                    <a href="email.html" class="social-link">
-                        <i class="fas fa-envelope"></i>
-                    </a>
-                    <a href="qq.html" class="social-link">
-                        <i class="fas fa-commenting"></i>
-                    </a>
-                </div>
+            
+            <a href="http://totscloud.top" class="btn" id="redirectBtn">
+                <i class="fas fa-external-link-alt"></i> 立即访问新网站
+            </a>
+            
+            <div class="info-box">
+                <h3 class="info-title">迁移说明</h3>
+                <p class="info-content">
+                    原网站已停止更新和维护，所有内容和服务已迁移至新域名 totscloud.top。
+                    新网站提供更快的访问速度、增强的安全性和更丰富的功能。您的书签和收藏链接需要更新到新地址。
+                    如有任何问题，请联系 tots666666@163.com。
+                </p>
             </div>
-        </aside>
+        </div>
+        
+        <div class="footer">
+            <div class="signature">TOTS的小站 - TOTS</div>
+            <div class="date">2025年7月1日</div>
+        </div>
     </div>
 
-    <footer style="background:var(--primary-color);color:white;padding:2rem;margin-top:3rem">
-        <div style="max-width:1200px;margin:0 auto;text-align:center">
-            <a target="_blank" href="https://www.ccw.site/student/66fe2a44fefe470607b0c0b5">快来看看，这是我做的程序[戳我(~￣▽￣)~]</a> 
-            <p>© 2025 TOTS的小站 保留所有权利</p>
-            <div style="margin-top:1rem">
-                <a href="https://domain.miit.gov.cn/" target="_blank" style="color:rgba(255,255,255,0.8);text-decoration:none">
-                    浙ICP备12345678号
-                </a>
-            </div>
-        </div>
-    </footer>
     <script>
-        // 音乐播放控制
-        const audio = document.querySelector('audio');
-        audio.volume = 0.3; // 设置默认音量
+        // 自动跳转功能（5秒后）
+        setTimeout(function() {
+            window.location.href = "http://totscloud.top";
+        }, 5000);
+        
+        // 按钮点击事件
+        document.getElementById('redirectBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = "http://totscloud.top";
+        });
+        
+        // 添加悬浮动画效果
+        const container = document.querySelector('.container');
+        container.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-10px)';
+        });
+        
+        container.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
     </script>
 </body>
 </html>
